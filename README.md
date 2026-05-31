@@ -2,6 +2,8 @@
 
 Cross-surface audit-event substrate for the AbsoluteJS ecosystem.
 
+**Docs:** [absolutejs.com/documentation/audit-overview](https://absolutejs.com/documentation/audit-overview)
+
 One append-only log spanning sync mutations + queue jobs + runtime exits +
 secret rotations + auth events + anything else the host wants to record.
 Pluggable sinks, optional hash-chain tamper-evidence, live-wire helpers that
