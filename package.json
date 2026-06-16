@@ -6,6 +6,10 @@
 		"type": "git",
 		"url": "https://github.com/absolutejs/audit.git"
 	},
+	"homepage": "https://github.com/absolutejs/audit",
+	"bugs": {
+		"url": "https://github.com/absolutejs/audit/issues"
+	},
 	"main": "./dist/index.js",
 	"module": "./dist/index.js",
 	"types": "./dist/index.d.ts",
