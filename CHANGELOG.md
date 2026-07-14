@@ -2,6 +2,13 @@
 
 All notable changes to `@absolutejs/audit` are recorded here.
 
+## [0.0.4] — 2026-07-14
+
+- Integrity-wrapped sinks now always expose `flush()` and `close()`, even when
+  the underlying immediate sink has no lifecycle methods. This makes the
+  append-tail drain guarantee uniform across memory, Postgres, console, and
+  buffered sinks.
+
 ## [0.0.3] — 2026-07-14
 
 - `withIntegrity()` now waits for its serialized append chain before

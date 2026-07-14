@@ -526,20 +526,14 @@ export const withIntegrity = (
 			appendChain = next.catch(() => {});
 			return next;
 		},
-		close:
-			sink.close === undefined
-				? undefined
-				: async () => {
-						await appendChain;
-						await sink.close?.();
-					},
-		flush:
-			sink.flush === undefined
-				? undefined
-				: async () => {
-						await appendChain;
-						await sink.flush?.();
-					},
+		close: async () => {
+			await appendChain;
+			await sink.close?.();
+		},
+		flush: async () => {
+			await appendChain;
+			await sink.flush?.();
+		},
 		list: sink.list?.bind(sink),
 		name: sink.name ? `${sink.name}+integrity` : 'integrity',
 		prune: sink.prune?.bind(sink)

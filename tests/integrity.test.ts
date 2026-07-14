@@ -168,6 +168,21 @@ describe('withIntegrity() + verifyChain() — 0.0.1', () => {
 		expect(lifecycle.slice(1).sort()).toEqual(['close', 'flush']);
 	});
 
+	test('adds drain lifecycle methods to immediate sinks', async () => {
+		let appended = false;
+		const sink = withIntegrity({
+			append: async () => {
+				await new Promise((resolve) => setTimeout(resolve, 1));
+				appended = true;
+			}
+		});
+		void sink.append({ at: 1, kind: 'tail' });
+		expect(sink.flush).toBeFunction();
+		expect(sink.close).toBeFunction();
+		await sink.flush?.();
+		expect(appended).toBe(true);
+	});
+
 	test('JSON serialization round-trip preserves chain validity', async () => {
 		// Simulates the chain surviving a database (jsonb) round-trip
 		// that may reorder object keys.
