@@ -86,7 +86,7 @@ export type AuditEvent = {
 
 /** Filter for {@link AuditSink.list}. Stores may implement additional filters. */
 export type AuditEventFilter = {
-	/** Max events to return. */
+	/** Most recent events to return, ordered oldest-first. */
 	limit?: number;
 	/**
 	 * Substring match against `kind` (`"runtime."` returns every runtime
@@ -326,7 +326,7 @@ export const memorySink = (options: MemorySinkOptions = {}): AuditSink => {
 				out = out.filter((event) => event.at <= until);
 			}
 			if (filter?.limit !== undefined) {
-				out = out.slice(0, filter.limit);
+				out = out.slice(-filter.limit);
 			}
 			return [...out];
 		},
@@ -495,9 +495,9 @@ export const withIntegrity = (
 			return;
 		}
 		const recent = (await sink.list?.({ limit: seedScanLimit })) ?? [];
-		const head = recent.find(
-			(event) => readIntegrity(event)?.writerId === writerId
-		);
+		const head = [...recent]
+			.reverse()
+			.find((event) => readIntegrity(event)?.writerId === writerId);
 		lastHash = head ? (readIntegrity(head)?.hash ?? GENESIS) : GENESIS;
 	};
 

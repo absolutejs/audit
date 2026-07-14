@@ -2,6 +2,14 @@
 
 All notable changes to `@absolutejs/audit` are recorded here.
 
+## [0.0.5] — 2026-07-14
+
+- Defines `list({ limit })` as the most recent matching events, returned
+  oldest-first for verification, and updates the memory sink accordingly.
+- Stable integrity writers now seed from the newest matching writer event
+  instead of the oldest event in the scan window, preserving the chain across
+  process restarts.
+
 ## [0.0.4] — 2026-07-14
 
 - Integrity-wrapped sinks now always expose `flush()` and `close()`, even when

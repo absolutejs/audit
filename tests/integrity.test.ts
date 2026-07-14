@@ -183,6 +183,26 @@ describe('withIntegrity() + verifyChain() — 0.0.1', () => {
 		expect(appended).toBe(true);
 	});
 
+	test('stable writers resume from the newest event in the scan window', async () => {
+		const base = memorySink();
+		const first = withIntegrity(base, {
+			secret: 'k',
+			seedScanLimit: 3,
+			writerId: 'stable-writer'
+		});
+		for (let index = 0; index < 5; index++) {
+			await first.append({ at: index, kind: `before-${index}` });
+		}
+		const resumed = withIntegrity(base, {
+			secret: 'k',
+			seedScanLimit: 3,
+			writerId: 'stable-writer'
+		});
+		await resumed.append({ at: 6, kind: 'after-restart' });
+		const events = (await base.list?.()) ?? [];
+		expect(await verifyChain(events, 'k')).toEqual({ ok: true });
+	});
+
 	test('JSON serialization round-trip preserves chain validity', async () => {
 		// Simulates the chain surviving a database (jsonb) round-trip
 		// that may reorder object keys.

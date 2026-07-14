@@ -169,6 +169,18 @@ describe('memorySink() — 0.0.1', () => {
 		expect(window).toHaveLength(1);
 		expect(window[0]!.kind).toBe('b');
 	});
+
+	test('list limit returns the most recent events oldest-first', async () => {
+		const sink = memorySink();
+		for (let index = 0; index < 5; index++) {
+			await sink.append({ at: index, kind: `event-${index}` });
+		}
+		const events = (await sink.list?.({ limit: 2 })) ?? [];
+		expect(events.map((event) => event.kind)).toEqual([
+			'event-3',
+			'event-4'
+		]);
+	});
 });
 
 describe('consoleSink() — 0.0.1', () => {
