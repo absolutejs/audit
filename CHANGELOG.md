@@ -2,6 +2,14 @@
 
 All notable changes to `@absolutejs/audit` are recorded here.
 
+## [0.0.3] — 2026-07-14
+
+- `withIntegrity()` now waits for its serialized append chain before
+  delegating `flush()` or `close()` to the wrapped sink. Fire-and-forget audit
+  producers can therefore rely on the documented graceful-shutdown contract
+  without losing an integrity-protected tail event.
+- No API changes.
+
 ## [0.0.1] — 2026-05-29
 
 Initial preview. Cross-surface audit-event substrate addressing the gap the

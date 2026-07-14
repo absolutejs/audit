@@ -4,7 +4,8 @@ import {
 	hashAuditEvent,
 	memorySink,
 	verifyChain,
-	withIntegrity
+	withIntegrity,
+	type AuditSink
 } from '../src';
 
 describe('withIntegrity() + verifyChain() — 0.0.1', () => {
@@ -134,6 +135,37 @@ describe('withIntegrity() + verifyChain() — 0.0.1', () => {
 		expect(events).toHaveLength(50);
 		const result = await verifyChain(events, 'k');
 		expect(result.ok).toBe(true);
+	});
+
+	test('flush and close wait for the serialized append tail', async () => {
+		let releaseAppend!: () => void;
+		const appendBlocked = new Promise<void>((resolve) => {
+			releaseAppend = resolve;
+		});
+		const lifecycle: string[] = [];
+		const base: AuditSink = {
+			append: async () => {
+				await appendBlocked;
+				lifecycle.push('append');
+			},
+			close: () => {
+				lifecycle.push('close');
+			},
+			flush: () => {
+				lifecycle.push('flush');
+			}
+		};
+		const sink = withIntegrity(base, { secret: 'k' });
+		void sink.append({ at: 1, kind: 'tail' });
+		const flush = sink.flush?.();
+		const close = sink.close?.();
+
+		await new Promise((resolve) => setTimeout(resolve, 0));
+		expect(lifecycle).toEqual([]);
+		releaseAppend();
+		await Promise.all([flush, close]);
+		expect(lifecycle[0]).toBe('append');
+		expect(lifecycle.slice(1).sort()).toEqual(['close', 'flush']);
 	});
 
 	test('JSON serialization round-trip preserves chain validity', async () => {
