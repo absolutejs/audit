@@ -3,10 +3,36 @@ import {
 	createAudit,
 	memorySink,
 	recordQueueError,
+	recordAgentRunEvent,
 	recordRuntimeTransition,
 	recordSecretRotation,
 	recordSyncActivity
 } from '../src';
+
+describe('recordAgentRunEvent() — 0.1.0', () => {
+	test('records identity and budgets without prompts, payloads, or user PII', async () => {
+		const sink = memorySink();
+		const audit = createAudit({ sinks: [sink] });
+		const handler = recordAgentRunEvent(audit);
+		handler({
+			type: 'step.appended',
+			run: {
+				id: 'run-1',
+				status: 'running',
+				actor: { tenantId: 'tenant-1', userId: 'private-user', agentId: 'agent-1' },
+				agent: { descriptorId: 'https://agent.example', descriptorVersion: '1', descriptorDigest: 'sha256:abc' },
+				usage: { actions: 1, costMicros: 2, inputTokens: 3, outputTokens: 4, spendMinor: 5, wallTimeMs: 6 }
+			},
+			step: { id: 'step-1', sequence: 1, kind: 'effect.requested', name: 'wallet.pay' }
+		});
+		await new Promise((resolve) => setTimeout(resolve, 0));
+		const event = (await sink.list?.())?.[0];
+		expect(event?.kind).toBe('agent.step.effect.requested');
+		expect(event?.target).toBe('run-1');
+		expect(event?.metadata?.descriptorDigest).toBe('sha256:abc');
+		expect(JSON.stringify(event)).not.toContain('private-user');
+	});
+});
 
 describe('recordRuntimeTransition() — 0.0.1', () => {
 	test('emits runtime.<type> events keyed on the tenant', async () => {

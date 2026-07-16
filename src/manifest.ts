@@ -35,7 +35,7 @@ export const manifest = defineManifest<AuditOptions, AuditToolRuntime>()({
 		accent: '#8b5cf6',
 		category: 'compliance',
 		description:
-			'Cross-surface audit-event substrate: one append-only log with pluggable sinks (memory, console, Postgres, S3 via `@absolutejs/audit-*`), optional hash-chain tamper-evidence (`withIntegrity` + `verifyChain`), and live-wire helpers that thread sync mutations, queue jobs, runtime exits, and secret rotations into one unified log.',
+			'Cross-surface audit-event substrate: one append-only log with pluggable sinks (memory, console, Postgres, S3 via `@absolutejs/audit-*`), optional hash-chain tamper-evidence (`withIntegrity` + `verifyChain`), and privacy-safe live-wire helpers for agent runs, sync mutations, queue jobs, runtime exits, and secret rotations.',
 		docsUrl: 'https://github.com/absolutejs/audit',
 		name: '@absolutejs/audit',
 		tagline:

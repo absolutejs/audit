@@ -9,6 +9,11 @@ secret rotations + auth events + anything else the host wants to record.
 Pluggable sinks, optional hash-chain tamper-evidence, live-wire helpers that
 attach to the substrate packages' existing listener APIs.
 
+Agent runs are first-class: `recordAgentRunEvent(audit)` plugs directly into
+`@absolutejs/agent-runtime`'s `onEvent`. It records signed discovery identity,
+delegation attribution, lifecycle, effects, and budget usage while deliberately
+excluding goals, prompts, payloads, outputs, checkpoints, and user IDs by default.
+
 ## Install
 
 ```sh
@@ -146,6 +151,7 @@ existing listener API. Audit doesn't reach into the runtime's lifecycle.
 | Helper | Wires into | Emits |
 |---|---|---|
 | `recordRuntimeTransition(audit)` | `createRuntime({ onTransition })` | `runtime.<type>` |
+| `recordAgentRunEvent(audit)` | `createAgentRuntime({ onEvent })` | `agent.run.<event>` / `agent.step.<kind>` |
 | `recordQueueError(audit)` | `createQueueWorker({ onError })` | `queue.error` |
 | `recordSecretRotation(audit)` | `broker.onRotate(name, ...)` | `secrets.rotated` |
 | `recordSyncActivity(audit)` | `engine.onActivity(...)` | `sync.change.<op>` / `sync.mutation.<status>` / `sync.batch.<status>` / `sync.retry` |

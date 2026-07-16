@@ -641,6 +641,94 @@ export const recordRuntimeTransition =
 		});
 	};
 
+/** Minimal structural shape of `@absolutejs/agent-runtime` events. */
+export type AgentRunEventLike = {
+	type: 'run.created' | 'run.claimed' | 'run.transitioned' | 'step.appended';
+	run: {
+		id: string;
+		parentRunId?: string;
+		status: string;
+		actor: {
+			tenantId: string;
+			userId: string;
+			agentId: string;
+			delegationId?: string;
+		};
+		agent: {
+			descriptorId: string;
+			descriptorVersion: string;
+			descriptorDigest: string;
+		};
+		usage: {
+			actions: number;
+			costMicros: number;
+			inputTokens: number;
+			outputTokens: number;
+			spendMinor: number;
+			wallTimeMs: number;
+		};
+		error?: { code: string; retryable: boolean };
+	};
+	step?: {
+		id: string;
+		sequence: number;
+		kind: string;
+		name?: string;
+	};
+};
+
+export type RecordAgentRunOptions = {
+	/** User IDs are excluded by default; enable only for an approved audit purpose. */
+	includeUserId?: boolean;
+};
+
+/**
+ * Returns an `onEvent` callback for `@absolutejs/agent-runtime`.
+ *
+ * Prompts, goals, inputs, outputs, checkpoints, and effect payloads are never
+ * copied. The durable audit trail contains identity pins, attribution,
+ * lifecycle state, budget usage, and step/effect names only.
+ */
+export const recordAgentRunEvent = (
+	audit: Audit,
+	options: RecordAgentRunOptions = {}
+) =>
+	(event: AgentRunEventLike): void => {
+		const { run, step } = event;
+		void audit.append({
+			actor: run.actor.agentId,
+			kind:
+				event.type === 'step.appended' && step !== undefined
+					? `agent.step.${step.kind}`
+					: `agent.${event.type}`,
+			metadata: {
+				tenantId: run.actor.tenantId,
+				...(options.includeUserId ? { userId: run.actor.userId } : {}),
+				...(run.actor.delegationId !== undefined
+					? { delegationId: run.actor.delegationId }
+					: {}),
+				descriptorId: run.agent.descriptorId,
+				descriptorVersion: run.agent.descriptorVersion,
+				descriptorDigest: run.agent.descriptorDigest,
+				status: run.status,
+				...(run.parentRunId !== undefined
+					? { parentRunId: run.parentRunId }
+					: {}),
+				...(step !== undefined
+					? {
+							stepId: step.id,
+							stepSequence: step.sequence,
+							stepKind: step.kind,
+							...(step.name !== undefined ? { effectName: step.name } : {})
+						}
+					: {}),
+				usage: { ...run.usage },
+				...(run.error !== undefined ? { error: { ...run.error } } : {})
+			},
+			target: run.id
+		});
+	};
+
 /** Shape of a `@absolutejs/queue` `Job` — minimal subset we use. */
 export type JobLike = {
 	id: string;
