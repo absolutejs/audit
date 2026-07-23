@@ -30,7 +30,7 @@ const tool = toolFactory<AuditToolRuntime>();
 /* AuditOptions has no serializable keys: `sinks` is instance-valued → the
  * `sink` slot; `onError` / `clock` are function-valued → wiring concerns. */
 export const manifest = defineManifest<AuditOptions, AuditToolRuntime>()({
-	contract: 1,
+	contract: 2,
 	identity: {
 		accent: '#8b5cf6',
 		category: 'compliance',
@@ -102,6 +102,12 @@ export const manifest = defineManifest<AuditOptions, AuditToolRuntime>()({
 	tools: {
 		audit_stats: tool.runtime({
 			annotations: { readOnlyHint: true },
+			authorization: {
+				approval: 'never',
+				audience: 'admin',
+				effects: ['read'],
+				requiredScopes: ['audit:read']
+			},
 			description:
 				'Cumulative audit counters since the server started: successful appends, appends where a sink failed, and per-sink error counts.',
 			handler: (_input, runtime) => JSON.stringify(runtime.audit.metrics()),
@@ -109,6 +115,12 @@ export const manifest = defineManifest<AuditOptions, AuditToolRuntime>()({
 		}),
 		list_audit_events: tool.runtime({
 			annotations: { readOnlyHint: true },
+			authorization: {
+				approval: 'never',
+				audience: 'admin',
+				effects: ['read'],
+				requiredScopes: ['audit:read']
+			},
 			description:
 				'List recent audit events, optionally filtered by kind substring (e.g. "auth."), exact actor, or time range (ms epochs). Requires a queryable store (memory or Postgres sink).',
 			handler: async (input, runtime) => {
@@ -132,6 +144,16 @@ export const manifest = defineManifest<AuditOptions, AuditToolRuntime>()({
 			})
 		}),
 		record_audit_event: tool.runtime({
+			annotations: { idempotentHint: true },
+			authorization: {
+				approval: 'policy',
+				audience: 'admin',
+				effects: ['write'],
+				idempotency: { mode: 'host' },
+				requiredScopes: ['audit:write'],
+				resource: { idField: 'target', type: 'audit-event' },
+				reversible: false
+			},
 			description:
 				'Append one audit event to the log — e.g. an operator note during an incident. `kind` is a namespaced identifier like "ops.note". Events are append-only: they cannot be edited or removed afterwards.',
 			handler: async ({ actor, kind, metadata, target }, runtime) => {
@@ -155,6 +177,12 @@ export const manifest = defineManifest<AuditOptions, AuditToolRuntime>()({
 		}),
 		verify_audit_chain: tool.runtime({
 			annotations: { readOnlyHint: true },
+			authorization: {
+				approval: 'never',
+				audience: 'admin',
+				effects: ['read'],
+				requiredScopes: ['audit:verify']
+			},
 			description:
 				'Verify the tamper-evidence hash chain over recent events. Only meaningful when events were written through withIntegrity() and the bound store supports queries. HMAC-secured chains cannot be verified here — the chain secret never passes through tools.',
 			handler: async ({ limit }, runtime) => {

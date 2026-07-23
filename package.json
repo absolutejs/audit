@@ -1,6 +1,6 @@
 {
 	"name": "@absolutejs/audit",
-	"version": "0.1.0",
+  "version": "0.2.0",
 	"description": "Cross-surface audit-event substrate for the AbsoluteJS ecosystem — append-only event log with pluggable sinks, optional hash-chain tamper-evidence, and live-wire helpers that thread sync mutations, queue jobs, runtime exits, and secret rotations into one unified log.",
 	"repository": {
 		"type": "git",
@@ -17,7 +17,7 @@
 	"license": "BSL-1.1",
 	"author": "Alex Kahn",
 	"absolutejs": {
-		"manifestContract": 1
+    "manifestContract": 2
 	},
 	"publishConfig": {
 		"access": "public"
@@ -40,7 +40,7 @@
 		"release": "bun run format && bun run build && bun publish"
 	},
 	"dependencies": {
-		"@absolutejs/manifest": "^0.1.0",
+    "@absolutejs/manifest": "^0.4.0",
 		"@sinclair/typebox": "^0.34.0"
 	},
 	"devDependencies": {
