@@ -4,7 +4,7 @@
   "description": "Cross-surface audit-event substrate for the AbsoluteJS ecosystem — append-only event log with pluggable sinks, optional hash-chain tamper-evidence, and live-wire helpers that thread sync mutations, queue jobs, runtime exits, and secret rotations into one unified log.",
   "repository": {
     "type": "git",
-    "url": "https://github.com/absolutejs/audit.git"
+    "url": "git+https://github.com/absolutejs/audit.git"
   },
   "homepage": "https://github.com/absolutejs/audit",
   "bugs": {
