@@ -1,6 +1,6 @@
 {
   "name": "@absolutejs/audit",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Cross-surface audit-event substrate for the AbsoluteJS ecosystem — append-only event log with pluggable sinks, optional hash-chain tamper-evidence, and live-wire helpers that thread sync mutations, queue jobs, runtime exits, and secret rotations into one unified log.",
   "repository": {
     "type": "git",
@@ -33,7 +33,7 @@
     "soc2"
   ],
   "scripts": {
-    "build": "rm -rf dist && bun build src/index.ts src/manifest.ts --outdir dist --sourcemap --target=bun --external @absolutejs/manifest --external @sinclair/typebox && tsc --project tsconfig.build.json && absolute-manifest emit",
+    "build": "rm -rf dist && bun build src/index.ts src/manifest.ts --outdir dist --sourcemap --target=bun --external @absolutejs/handoff --external @absolutejs/manifest --external @sinclair/typebox && tsc --project tsconfig.build.json && absolute-manifest emit",
     "test": "bun test",
     "typecheck": "tsc --noEmit",
     "format": "prettier --write \"./**/*.{ts,json,md}\"",
@@ -42,6 +42,7 @@
     "release": "bun run format && bun run check:package && bun publish"
   },
   "dependencies": {
+    "@absolutejs/handoff": "0.1.0",
     "@absolutejs/manifest": "^0.7.2",
     "@sinclair/typebox": "^0.34.0"
   },

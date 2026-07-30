@@ -155,9 +155,13 @@ existing listener API. Audit doesn't reach into the runtime's lifecycle.
 | `recordQueueError(audit)` | `createQueueWorker({ onError })` | `queue.error` |
 | `recordSecretRotation(audit)` | `broker.onRotate(name, ...)` | `secrets.rotated` |
 | `recordSyncActivity(audit)` | `engine.onActivity(...)` | `sync.change.<op>` / `sync.mutation.<status>` / `sync.batch.<status>` / `sync.retry` |
+| `recordHandoffEvidence(audit)` | `createHandoffRecorder({ observer })` | `handoff.<operation>.<outcome>` |
 
 For events not covered by a helper (your own app's billing / impersonation /
 deletion etc.), call `audit.append({ kind, ... })` directly.
+
+The handoff helper records operational identity but excludes evidence messages,
+references, external ids, and raw external-system payloads.
 
 ### Metrics
 

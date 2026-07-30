@@ -48,6 +48,8 @@
  *    30s interval; alert on errors climbing.
  */
 
+import type { HandoffEvidence } from '@absolutejs/handoff';
+
 const INTEGRITY_KEY = '__integrity';
 const GENESIS = '';
 
@@ -785,6 +787,31 @@ export const recordSecretRotation =
 			kind: 'secrets.rotated',
 			metadata: { fingerprint: event.fingerprint },
 			target: event.name
+		});
+	};
+
+/**
+ * Returns an observer for `@absolutejs/handoff`. The append-only record keeps
+ * correlation, operation, service, source, outcome, and attempt, while
+ * deliberately excluding messages, references, external ids, and raw payloads.
+ */
+export const recordHandoffEvidence =
+	(audit: Audit) =>
+	(evidence: HandoffEvidence): void => {
+		void audit.append({
+			at: evidence.at,
+			kind: `handoff.${evidence.operation}.${evidence.outcome}`,
+			metadata: {
+				correlationId: evidence.correlationId,
+				operation: evidence.operation,
+				outcome: evidence.outcome,
+				service: evidence.service,
+				source: evidence.source,
+				...(evidence.attempt === undefined
+					? {}
+					: { attempt: evidence.attempt })
+			},
+			target: evidence.correlationId
 		});
 	};
 
